@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template
-from interpreter import Interpreter # import your Interpreter class here
+from interpreter import Interpreter
+import io, sys
 
 app = Flask(__name__)
 
@@ -10,13 +11,13 @@ def index():
 @app.route("/run", methods=["POST"])
 def run_code():
     code = request.json.get("code", "")
+    inputs = request.json.get("inputs", {})
+
     try:
-        # Capture printed output
-        import io, sys
         old_stdout = sys.stdout
         sys.stdout = mystdout = io.StringIO()
 
-        Interpreter(code).run()
+        Interpreter(code, inputs=inputs).run()
 
         sys.stdout = old_stdout
         output = mystdout.getvalue()
